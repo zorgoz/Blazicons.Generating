@@ -47,7 +47,12 @@ public static class GeneratorExecutionContextExtensions
             builder.AppendLine("/// <summary>");
             builder.AppendLine($"/// Gets the {propertyName} SvgIcon from the {className} library.");
             builder.AppendLine("/// </summary>");
-            builder.Append($"public static SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgString}\"");
+            builder.Append($"public static ");
+            if (propertyName == "Equals")
+            {
+                builder.Append("new ");
+            }
+            builder.Append("SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgString}\"");
             if (!string.IsNullOrEmpty(viewBox))
             {
                 builder.Append($", \"{viewBox}\"");
