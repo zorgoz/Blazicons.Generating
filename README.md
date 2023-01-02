@@ -3,6 +3,8 @@ Provides support for generating [Blazicon](https://github.com/kyleherzog/Blazico
 
 See the [changelog](CHANGELOG.md) for change history.  
 
+![Nuget](https://img.shields.io/nuget/v/Blazicons.Generating)
+
 [![Build Status](https://dev.azure.com/kyleherzog/Blazicons/_apis/build/status/Blazicons.Generating?branchName=main)](https://dev.azure.com/kyleherzog/Blazicons/_build/latest?definitionId=16&branchName=main)
 
 ## Overview
