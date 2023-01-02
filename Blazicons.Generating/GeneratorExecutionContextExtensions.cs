@@ -33,7 +33,7 @@ public static class GeneratorExecutionContextExtensions
 
         if (isFileNameOk is not null)
         {
-            files = files.Where(x => isFileNameOk(x)).ToArray();
+            files = files.Where(x => isFileNameOk(x)).OrderBy(x => x.ToLowerInvariant()).ToArray();
         }
 
         var propertyNames = new List<string>();
