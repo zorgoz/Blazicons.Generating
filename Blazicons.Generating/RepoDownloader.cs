@@ -33,7 +33,7 @@ public class RepoDownloader
 
     public string BranchName { get; }
 
-    public async Task Download(string entriesFilter = @"\.svg")
+    public async Task<IReadOnlyList<string>> Download(string entriesFilter = @"\.svg")
     {
         var fileName = Path.GetFileName(Address.AbsolutePath);
 
@@ -53,22 +53,26 @@ public class RepoDownloader
             !string.IsNullOrEmpty(x.Name)
             && Regex.IsMatch(x.FullName.Substring(RepoName.Length + 1 + BranchName.Length +1), entriesFilter));
 
+        var downloadedFiles = new List<string>();
+
         foreach (var entry in entries)
         {
-            var extractedName = Path.Combine(ExtractedFolder, entry.FullName.Replace("/", "\\"));
+            var extractedName = Path.Combine(ExtractedFolder, entry.FullName.Replace('/', Path.DirectorySeparatorChar));
             if (extractedName.Contains(".."))
             {
                 throw new InvalidOperationException($"Invalid file name '{extractedName}'");
             }
 
             var dir = Path.GetDirectoryName(extractedName);
-            if (!Directory.Exists(dir))
-            {
-                Directory.CreateDirectory(dir);
-            }
+
+            Directory.CreateDirectory(dir);
+
+            downloadedFiles.Add(extractedName);
 
             entry.ExtractToFile(extractedName);
         }
+
+        return downloadedFiles;
     }
 }
 
