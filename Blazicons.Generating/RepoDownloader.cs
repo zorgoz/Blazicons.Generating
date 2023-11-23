@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.IO.Compression;
+﻿using System.IO.Compression;
 using System.Text.RegularExpressions;
 
 namespace Blazicons.Generating;

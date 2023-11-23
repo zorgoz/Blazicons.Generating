@@ -1,4 +1,5 @@
 using Blazicons.Generating;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Tests;
 
