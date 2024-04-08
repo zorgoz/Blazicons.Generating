@@ -1,7 +1,9 @@
 ﻿using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using Blazicons.Generating.Internals;
 using CodeCasing;
+using HtmlAgilityPack;
 using Microsoft.CodeAnalysis;
 
 namespace Blazicons.Generating;
@@ -18,6 +20,8 @@ public static class GeneratorExecutionContextExtensions
         )
     {
         propertyNameFromFileName ??= GetMemberName;
+
+        var attributesCollection = new AttributesCollection();
 
         var builder = new StringBuilder();
 
@@ -40,8 +44,15 @@ public static class GeneratorExecutionContextExtensions
         foreach (var file in files)
         {
             var svg = File.ReadAllText(Path.Combine(svgFolder, file));
+            var svgDoc = new SvgDocument(svg);
+            svgDoc.Scrub();
+            var attributes = svgDoc.GetAttributes();
+            var attributesIndex = attributesCollection.FindOrAdd(attributes);
+
+
             var svgString = ScrubSvg(svg);
             var viewBox = GetViewBox(svg);
+            var strokeStyles = GetStrokeStyles(svg);
             var propertyName = ScrubPropertyName(propertyNameFromFileName(file));
             propertyNames.Add(propertyName);
             builder.AppendLine("/// <summary>");
@@ -62,6 +73,14 @@ public static class GeneratorExecutionContextExtensions
 
         builder.AppendLine("}");
         context.AddSource($"{className}.g.cs", builder.ToString());
+    }
+
+    internal static Dictionary<string, string> GetStrokeStyles(string svg)
+    {
+        var doc = new HtmlDocument();
+        doc.LoadHtml(svg);
+        var svgElement = doc.DocumentNode.SelectSingleNode("//svg");
+        return svgElement.Attributes.Where(x => x.Name.StartsWith("stroke")).ToDictionary(x => x.Name, x => x.Value);
     }
 
     private static string? GetViewBox(string svg)
