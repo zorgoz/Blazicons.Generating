@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Blazicons.Generating.Internals;
+﻿using Blazicons.Generating.Internals;
 
 namespace Blazicons.Generating.UnitTests.AttributesCollectionTests;
 
@@ -21,6 +16,27 @@ public class FindOrAddShould
         };
 
         var index = collection.FindOrAdd(attributes);
+        Assert.AreEqual(0, index);
+    }
+
+    [TestMethod]
+    public void ReturnExistingGivenDifferentOrderAttributeSet()
+    {
+        var collection = new AttributesCollection();
+        var attributes = new Dictionary<string, string>
+        {
+            { "fill", "#000" },
+            { "viewBox", "0 0 24 24" }
+        };
+
+        collection.FindOrAdd(attributes);
+        var differentOrderAttributes = new Dictionary<string, string>
+        {
+            { "viewBox", "0 0 24 24" },
+            { "fill", "#000" }
+        };
+
+        var index = collection.FindOrAdd(differentOrderAttributes);
         Assert.AreEqual(0, index);
     }
 

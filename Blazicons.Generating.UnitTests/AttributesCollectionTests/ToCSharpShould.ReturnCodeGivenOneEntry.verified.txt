@@ -1,0 +1,1 @@
+﻿private readonly ReadOnlyDictionary<string, string> attributeSet0 = new(new Dictionary<string, string>() {{"fill", "#000"}, {"viewBox", "0 0 24 24"}, });

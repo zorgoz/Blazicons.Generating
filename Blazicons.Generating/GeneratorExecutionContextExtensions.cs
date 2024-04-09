@@ -41,6 +41,8 @@ public static class GeneratorExecutionContextExtensions
         }
 
         var propertyNames = new List<string>();
+        var attributesBuilder = new StringBuilder();
+        var iconMembersBuilder = new StringBuilder();
         foreach (var file in files)
         {
             var svg = File.ReadAllText(Path.Combine(svgFolder, file));
@@ -48,64 +50,59 @@ public static class GeneratorExecutionContextExtensions
             svgDoc.Scrub();
             var attributes = svgDoc.GetAttributes();
             var attributesIndex = attributesCollection.FindOrAdd(attributes);
+            var svgContent = svgDoc.Document.DocumentNode.InnerHtml;
 
-
-            var svgString = ScrubSvg(svg);
-            var viewBox = GetViewBox(svg);
-            var strokeStyles = GetStrokeStyles(svg);
             var propertyName = ScrubPropertyName(propertyNameFromFileName(file));
             propertyNames.Add(propertyName);
-            builder.AppendLine("/// <summary>");
-            builder.AppendLine($"/// Gets the {propertyName} SvgIcon from the {className} library.");
-            builder.AppendLine("/// </summary>");
-            builder.Append("public static ");
+            iconMembersBuilder.AppendLine("/// <summary>");
+            iconMembersBuilder.AppendLine($"/// Gets the {propertyName} SvgIcon from the {className} library.");
+            iconMembersBuilder.AppendLine("/// </summary>");
+            iconMembersBuilder.Append("public static ");
             if (propertyName == "Equals")
             {
-                builder.Append("new ");
+                iconMembersBuilder.Append("new ");
             }
-            builder.Append($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgString}\"");
-            if (!string.IsNullOrEmpty(viewBox))
-            {
-                builder.Append($", \"{viewBox}\"");
-            }
-            builder.AppendLine(");");
+            iconMembersBuilder.Append($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContent}\", attributeSet{attributesIndex});");
         }
 
+        builder.AppendLine(attributesBuilder.ToString());
+        builder.AppendLine();
+        builder.AppendLine(iconMembersBuilder.ToString());
         builder.AppendLine("}");
         context.AddSource($"{className}.g.cs", builder.ToString());
     }
 
-    internal static Dictionary<string, string> GetStrokeStyles(string svg)
-    {
-        var doc = new HtmlDocument();
-        doc.LoadHtml(svg);
-        var svgElement = doc.DocumentNode.SelectSingleNode("//svg");
-        return svgElement.Attributes.Where(x => x.Name.StartsWith("stroke")).ToDictionary(x => x.Name, x => x.Value);
-    }
+    //internal static Dictionary<string, string> GetStrokeStyles(string svg)
+    //{
+    //    var doc = new HtmlDocument();
+    //    doc.LoadHtml(svg);
+    //    var svgElement = doc.DocumentNode.SelectSingleNode("//svg");
+    //    return svgElement.Attributes.Where(x => x.Name.StartsWith("stroke")).ToDictionary(x => x.Name, x => x.Value);
+    //}
 
-    private static string? GetViewBox(string svg)
-    {
-        var regex = new Regex("<svg.*viewBox=\"([^\"]*)\"", RegexOptions.Singleline);
-        var match = regex.Match(svg);
-        if (match.Success)
-        {
-            return match.Groups[1].Value;
-        }
+    //private static string? GetViewBox(string svg)
+    //{
+    //    var regex = new Regex("<svg.*viewBox=\"([^\"]*)\"", RegexOptions.Singleline);
+    //    var match = regex.Match(svg);
+    //    if (match.Success)
+    //    {
+    //        return match.Groups[1].Value;
+    //    }
 
-        return null;
-    }
+    //    return null;
+    //}
 
-    private static string ScrubSvg(string svg)
-    {
-        svg = Regex.Replace(svg, @"<\/?svg[^>]*>", string.Empty);
-        svg = Regex.Replace(svg, @"<!--(.*?)-->", string.Empty);
-        svg = Regex.Replace(svg, "fill=\"[^\"]*\"", string.Empty);
-        svg = Regex.Replace(svg, "stroke:#000;", "stroke:currentColor;");
-        svg = Regex.Replace(svg, "stroke=\"#000\"", "stroke=\"currentColor\"");
+    //private static string ScrubSvg(string svg)
+    //{
+    //    svg = Regex.Replace(svg, @"<\/?svg[^>]*>", string.Empty);
+    //    svg = Regex.Replace(svg, @"<!--(.*?)-->", string.Empty);
+    //    svg = Regex.Replace(svg, "fill=\"[^\"]*\"", string.Empty);
+    //    svg = Regex.Replace(svg, "stroke:#000;", "stroke:currentColor;");
+    //    svg = Regex.Replace(svg, "stroke=\"#000\"", "stroke=\"currentColor\"");
 
-        svg = svg.Replace("\n", string.Empty).Replace("\r", string.Empty);
-        return svg.Replace("\\", "\\\\").Replace("\"", "\\\"").Trim();
-    }
+    //    svg = svg.Replace("\n", string.Empty).Replace("\r", string.Empty);
+    //    return svg.Replace("\\", "\\\\").Replace("\"", "\\\"").Trim();
+    //}
 
     private static string ScrubPropertyName(string name)
     {

@@ -1,4 +1,7 @@
-﻿namespace Blazicons.Generating.Internals;
+﻿using System.Collections.ObjectModel;
+using System.Text;
+
+namespace Blazicons.Generating.Internals;
 
 internal class AttributesCollection : List<Dictionary<string, string>>
 {
@@ -17,5 +20,29 @@ internal class AttributesCollection : List<Dictionary<string, string>>
         }
 
         return IndexOf(match);
+    }
+    protected readonly ReadOnlyDictionary<string, string> a1 = new(new Dictionary<string, string>() { { "a", "1" }, { "b", "2" } });
+    public string ToCSharp()
+    {
+        var builder = new StringBuilder();
+
+        for (var i = 0; i < Count; i++)
+        {
+            builder.Append("private readonly ReadOnlyDictionary<string, string> attributeSet");
+            builder.Append(i);
+            builder.Append(" = new(new Dictionary<string, string>() {");
+            foreach (var attribute in this[i])
+            {
+                builder.Append("{\"");
+                builder.Append(attribute.Key);
+                builder.Append("\", \"");
+                builder.Append(attribute.Value);
+                builder.Append("\"}, ");
+            }
+
+            builder.AppendLine("});");
+        }
+
+        return builder.ToString();
     }
 }
