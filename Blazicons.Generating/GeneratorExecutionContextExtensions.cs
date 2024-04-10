@@ -47,7 +47,9 @@ public static class GeneratorExecutionContextExtensions
             svgDoc.Scrub();
             var attributes = svgDoc.GetAttributes();
             var attributesIndex = attributesCollection.FindOrAdd(attributes);
-            var svgContent = svgDoc.Document.DocumentNode.InnerHtml;
+            var svgContent = svgDoc.SvgNode.InnerHtml.Replace("\"", "\\\"");
+            var svgContentOneLine = svgContent.Replace("\r", "").Replace("\n", "");
+
 
             var propertyName = ScrubPropertyName(propertyNameFromFileName(file));
             propertyNames.Add(propertyName);
@@ -59,7 +61,7 @@ public static class GeneratorExecutionContextExtensions
             {
                 iconMembersBuilder.Append("new ");
             }
-            iconMembersBuilder.Append($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContent}\", attributeSet{attributesIndex});");
+            iconMembersBuilder.AppendLine($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContentOneLine}\", attributeSet{attributesIndex});");
         }
 
         builder.AppendLine(attributesBuilder.ToString());
