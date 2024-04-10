@@ -40,7 +40,9 @@ internal class SvgDocument
     {
         var nodes = SvgNode.DescendantsAndSelf().ToList();
         var fillColors = nodes.Where(x => x.Attributes.Contains("fill")).Select(x => x.Attributes["fill"].Value).Distinct().ToList();
+        fillColors.Remove("none");
         var strokeColors = nodes.Where(x => x.Attributes.Contains("stroke")).Select(x => x.Attributes["stroke"].Value).Distinct().ToList();
+        strokeColors.Remove("none");
         var allColors = fillColors.Concat(strokeColors).Distinct().ToList();
         if (allColors.Count > 1)
         {
