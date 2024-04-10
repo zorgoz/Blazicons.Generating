@@ -38,7 +38,6 @@ public static class GeneratorExecutionContextExtensions
         }
 
         var propertyNames = new List<string>();
-        var attributesBuilder = new StringBuilder();
         var iconMembersBuilder = new StringBuilder();
         foreach (var file in files)
         {
@@ -64,7 +63,7 @@ public static class GeneratorExecutionContextExtensions
             iconMembersBuilder.AppendLine($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContentOneLine}\", attributeSet{attributesIndex});");
         }
 
-        builder.AppendLine(attributesBuilder.ToString());
+        builder.AppendLine(attributesCollection.ToCSharp());
         builder.AppendLine();
         builder.AppendLine(iconMembersBuilder.ToString());
         builder.AppendLine("}");
