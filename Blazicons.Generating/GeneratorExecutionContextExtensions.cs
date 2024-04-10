@@ -1,9 +1,6 @@
-﻿using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
+﻿using System.Text;
 using Blazicons.Generating.Internals;
 using CodeCasing;
-using HtmlAgilityPack;
 using Microsoft.CodeAnalysis;
 
 namespace Blazicons.Generating;

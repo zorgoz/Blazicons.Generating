@@ -1,4 +1,3 @@
-using Blazicons.Generating;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Blazicons.Generating.IntegrationTests;
