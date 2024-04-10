@@ -71,39 +71,6 @@ public static class GeneratorExecutionContextExtensions
         builder.AppendLine("}");
         context.AddSource($"{className}.g.cs", builder.ToString());
     }
-
-    //internal static Dictionary<string, string> GetStrokeStyles(string svg)
-    //{
-    //    var doc = new HtmlDocument();
-    //    doc.LoadHtml(svg);
-    //    var svgElement = doc.DocumentNode.SelectSingleNode("//svg");
-    //    return svgElement.Attributes.Where(x => x.Name.StartsWith("stroke")).ToDictionary(x => x.Name, x => x.Value);
-    //}
-
-    //private static string? GetViewBox(string svg)
-    //{
-    //    var regex = new Regex("<svg.*viewBox=\"([^\"]*)\"", RegexOptions.Singleline);
-    //    var match = regex.Match(svg);
-    //    if (match.Success)
-    //    {
-    //        return match.Groups[1].Value;
-    //    }
-
-    //    return null;
-    //}
-
-    //private static string ScrubSvg(string svg)
-    //{
-    //    svg = Regex.Replace(svg, @"<\/?svg[^>]*>", string.Empty);
-    //    svg = Regex.Replace(svg, @"<!--(.*?)-->", string.Empty);
-    //    svg = Regex.Replace(svg, "fill=\"[^\"]*\"", string.Empty);
-    //    svg = Regex.Replace(svg, "stroke:#000;", "stroke:currentColor;");
-    //    svg = Regex.Replace(svg, "stroke=\"#000\"", "stroke=\"currentColor\"");
-
-    //    svg = svg.Replace("\n", string.Empty).Replace("\r", string.Empty);
-    //    return svg.Replace("\\", "\\\\").Replace("\"", "\\\"").Trim();
-    //}
-
     private static string ScrubPropertyName(string name)
     {
         var result = name;
