@@ -28,7 +28,7 @@ internal class AttributesCollection : List<Dictionary<string, string>>
 
         for (var i = 0; i < Count; i++)
         {
-            builder.Append("private readonly ReadOnlyDictionary<string, string> attributeSet");
+            builder.Append("private static readonly ReadOnlyDictionary<string, string> attributeSet");
             builder.Append(i);
             builder.Append(" = new(new Dictionary<string, string>() {");
             foreach (var attribute in this[i])
