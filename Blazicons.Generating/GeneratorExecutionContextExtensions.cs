@@ -7,6 +7,8 @@ namespace Blazicons.Generating;
 
 public static class GeneratorExecutionContextExtensions
 {
+    public static readonly string[] ExcludedAttributes = ["class"];
+
     public static void WriteIconsClass(
         this GeneratorExecutionContext context,
         string className,
@@ -46,6 +48,11 @@ public static class GeneratorExecutionContextExtensions
             var svgDoc = new SvgDocument(svg);
             svgDoc.Scrub();
             var attributes = svgDoc.GetAttributes();
+            foreach (var exclude in ExcludedAttributes)
+            {
+                attributes.Remove(exclude);
+            }
+
             var attributesIndex = attributesCollection.FindOrAdd(attributes);
             var svgContent = svgDoc.SvgNode.InnerHtml.Replace("\"", "\\\"");
             var svgContentOneLine = svgContent.Replace("\r", "").Replace("\n", "");
