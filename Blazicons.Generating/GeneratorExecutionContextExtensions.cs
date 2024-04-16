@@ -7,7 +7,7 @@ namespace Blazicons.Generating;
 
 public static class GeneratorExecutionContextExtensions
 {
-    public static readonly string[] ExcludedAttributes = ["class", "height", "width"];
+    public static readonly string[] ExcludedAttributes = ["class", "fill", "stroke"];
 
     public static void WriteIconsClass(
         this GeneratorExecutionContext context,

@@ -102,11 +102,11 @@ internal class SvgDocument
         {
             if (SvgNode.Attributes.Contains("stroke"))
             {
-                SvgNode.Attributes["stroke"].Value = "currentColor";
+                SvgNode.Attributes["blazicon-stroke"].Value = "currentColor";
             }
             else
             {
-                SvgNode.Attributes.Add("stroke", "currentColor");
+                SvgNode.Attributes.Add("blazicon-stroke", "currentColor");
             }
 
             needsColorClean = true;
@@ -116,11 +116,11 @@ internal class SvgDocument
         {
             if (SvgNode.Attributes.Contains("fill"))
             {
-                SvgNode.Attributes["fill"].Value = "currentColor";
+                SvgNode.Attributes["blazicon-fill"].Value = "";
             }
             else
             {
-                SvgNode.Attributes.Add("fill", "currentColor");
+                SvgNode.Attributes.Add("blazicon-fill", "");
             }
 
             needsColorClean = true;
