@@ -68,7 +68,7 @@ public static class GeneratorExecutionContextExtensions
             {
                 iconMembersBuilder.Append("new ");
             }
-            iconMembersBuilder.AppendLine($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContentOneLine}\", attributeSet{attributesIndex});");
+            iconMembersBuilder.AppendLine($"SvgIcon {propertyName} => SvgIcon.FromContent(\"{svgContentOneLine.Trim()}\", attributeSet{attributesIndex});");
         }
 
         builder.AppendLine(attributesCollection.ToCSharp());
