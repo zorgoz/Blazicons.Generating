@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-
 namespace Blazicons.Generating.Internals;
 
 internal class SvgDocument
@@ -8,7 +7,9 @@ internal class SvgDocument
     {
         Svg = svg;
         Document = new HtmlDocument();
+        Document.OptionOutputOriginalCase = true;
         Document.LoadHtml(Svg);
+        Document.UseAttributeOriginalName("svg");
 
         SvgNode = Document.DocumentNode.SelectSingleNode("//svg")
             ?? throw new InvalidOperationException("The provided SVG does not contain a root <svg> element.");
@@ -69,7 +70,7 @@ internal class SvgDocument
 
     public void RemoveColorAttributes()
     {
-        var nodes = SvgNode.Descendants().ToList();
+        var nodes = SvgNode.DescendantsAndSelf().ToList();
 
         foreach (var node in nodes)
         {
@@ -96,39 +97,21 @@ internal class SvgDocument
 
     public void UpdateRootColor()
     {
-        var needsColorClean = false;
         var colorType = CalculateSvgColorType();
-        if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
+        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
         {
-            if (SvgNode.Attributes.Contains("stroke"))
-            {
-                SvgNode.Attributes["blazicon-stroke"].Value = "currentColor";
-            }
-            else
-            {
-                SvgNode.Attributes.Add("blazicon-stroke", "currentColor");
-            }
-
-            needsColorClean = true;
+            RemoveColorAttributes();
         }
 
         if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill || colorType == SvgColorType.None)
         {
-            if (SvgNode.Attributes.Contains("fill"))
-            {
-                SvgNode.Attributes["blazicon-fill"].Value = "";
-            }
-            else
-            {
-                SvgNode.Attributes.Add("blazicon-fill", "");
-            }
-
-            needsColorClean = true;
+            SvgNode.Attributes.Add("fill", "currentColor");
         }
 
-        if (needsColorClean)
+
+        if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
         {
-            RemoveColorAttributes();
+            SvgNode.Attributes.Add("stroke", "currentColor");
         }
     }
 }
