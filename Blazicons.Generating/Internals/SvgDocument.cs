@@ -74,7 +74,11 @@ internal class SvgDocument
 
         foreach (var node in nodes)
         {
-            node.Attributes.Remove("fill");
+            if (node.Attributes.Contains("fill") && !node.Attributes["fill"].Value.Equals("none", StringComparison.OrdinalIgnoreCase))
+            {
+                node.Attributes.Remove("fill");
+            }
+
             node.Attributes.Remove("stroke");
         }
     }
