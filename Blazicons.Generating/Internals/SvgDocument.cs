@@ -1,4 +1,6 @@
 ﻿using HtmlAgilityPack;
+using System.Linq;
+
 namespace Blazicons.Generating.Internals;
 
 internal class SvgDocument
@@ -8,6 +10,7 @@ internal class SvgDocument
         Svg = svg;
         Document = new HtmlDocument();
         Document.OptionOutputOriginalCase = true;
+        Document.GlobalAttributeValueQuote = AttributeValueQuote.SingleQuote;
         Document.LoadHtml(Svg);
         Document.UseAttributeOriginalName("svg");
 
@@ -24,6 +27,31 @@ internal class SvgDocument
     public Dictionary<string, string> GetAttributes()
     {
         return SvgNode.Attributes.ToDictionary(x => x.Name, x => x.Value);
+    }
+
+    public void ConvertStylesToAttributes()
+    {
+        var nodes = SvgNode.DescendantsAndSelf().ToList();
+        foreach (var node in nodes.Where(node => node.Attributes.Contains("style")))
+        {
+            var styleValue = node.Attributes["style"].Value;
+            var parts = styleValue.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+            var attributes = new List<HtmlAttribute>();
+            foreach (var part in parts)
+            {
+                var styleEntry = part.Split(':');
+                if (styleEntry.Length > 1)
+                {
+                    attributes.Add(Document.CreateAttribute(styleEntry[0].Trim(), styleEntry[1].Trim()));
+                }
+            }
+
+            node.Attributes.Remove("style");
+            foreach (var attribute in attributes)
+            {
+                node.Attributes.Add(attribute);
+            }
+        }
     }
 
     /// <summary>
@@ -95,6 +123,7 @@ internal class SvgDocument
     public void Scrub()
     {
         RemoveComments();
+        ConvertStylesToAttributes();
         CalculateSvgColorType();
         UpdateRootColor();
     }
