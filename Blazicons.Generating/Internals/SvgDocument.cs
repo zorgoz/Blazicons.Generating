@@ -119,7 +119,14 @@ internal class SvgDocument
 
         if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.None)
         {
-            SvgNode.Attributes.Add("fill", "currentColor");
+            if (SvgNode.Attributes.Contains("fill"))
+            {
+                SvgNode.Attributes["fill"].Value = "currentColor";
+            }
+            else
+            {
+                SvgNode.Attributes.Add("fill", "currentColor");
+            }
         }
 
         UpdateStrokeColor(colorType);
