@@ -140,7 +140,7 @@ internal class SvgDocument
         if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill)
         {
             var nodes = Document.DocumentNode.DescendantsAndSelf();
-            foreach (var node in nodes.Where(node => node.Attributes.Contains("fill")))
+            foreach (var node in nodes.Where(node => node.Attributes.Contains("fill") && !node.Attributes["fill"].Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
             {
                 node.Attributes["fill"].Value = "currentColor";
             }
