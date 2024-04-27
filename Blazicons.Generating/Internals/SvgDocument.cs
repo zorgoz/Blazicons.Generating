@@ -121,7 +121,10 @@ internal class SvgDocument
         {
             if (SvgNode.Attributes.Contains("fill"))
             {
-                SvgNode.Attributes["fill"].Value = "currentColor";
+                if (!SvgNode.Attributes["fill"].Value.Equals("none", StringComparison.OrdinalIgnoreCase))
+                {
+                    SvgNode.Attributes["fill"].Value = "currentColor";
+                }
             }
             else
             {
@@ -149,7 +152,7 @@ internal class SvgDocument
         if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
         {
             var nodes = Document.DocumentNode.DescendantsAndSelf();
-            foreach (var node in nodes.Where(node => node.Attributes.Contains("stroke")))
+            foreach (var node in nodes.Where(node => node.Attributes.Contains("stroke") && !node.Attributes["stroke"].Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
             {
                 node.Attributes["stroke"].Value = "currentColor";
             }

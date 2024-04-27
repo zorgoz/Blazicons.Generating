@@ -38,6 +38,7 @@ public class UpdateColorsShould : VerifyBase
         return Verify(output);
     }
 
+
     [TestMethod]
     public Task UpdateGivenMultipleMatchingFillColors()
     {
