@@ -136,7 +136,7 @@ internal class SvgDocument
             RemoveColorAttributes();
         }
 
-        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill || colorType == SvgColorType.None)
+        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill || colorType == SvgColorType.SingleStroke || colorType == SvgColorType.None)
         {
             SvgNode.Attributes.Add("fill", "currentColor");
         }
