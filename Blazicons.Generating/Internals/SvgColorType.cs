@@ -5,6 +5,7 @@ internal enum SvgColorType
     None,
     SingleFill,
     SingleStroke,
-    SingleStrokeAndFill,
+    SingleColor,
+    SingleShared,
     Multiple,
 }

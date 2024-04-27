@@ -30,15 +30,16 @@ internal class SvgDocument
         fillColors.Remove("none");
         var strokeColors = nodes.Where(x => x.Attributes.Contains("stroke")).Select(x => x.Attributes["stroke"].Value).Distinct().ToList();
         strokeColors.Remove("none");
-        var allColors = fillColors.Concat(strokeColors).Distinct().ToList();
+        var colorColors = nodes.Where(x => x.Attributes.Contains("color")).Select(x => x.Attributes["color"].Value).Distinct().ToList();
+        var allColors = fillColors.Concat(strokeColors).Concat(colorColors).Distinct().ToList();
         if (allColors.Count > 1)
         {
             return SvgColorType.Multiple;
         }
 
-        if (fillColors.Count == 1 && strokeColors.Count == 1)
+        if (fillColors.Count + strokeColors.Count + colorColors.Count > 1)
         {
-            return SvgColorType.SingleStrokeAndFill;
+            return SvgColorType.SingleShared;
         }
 
         if (fillColors.Count == 1)
@@ -49,6 +50,11 @@ internal class SvgDocument
         if (strokeColors.Count == 1)
         {
             return SvgColorType.SingleStroke;
+        }
+
+        if (colorColors.Count == 1)
+        {
+            return SvgColorType.SingleColor;
         }
 
         return SvgColorType.None;
@@ -115,7 +121,7 @@ internal class SvgDocument
     public void UpdateColors()
     {
         var colorType = CalculateSvgColorType();
-        UpdateFillColor(colorType);
+        UpdateFillColors(colorType);
 
         if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.None)
         {
@@ -132,12 +138,25 @@ internal class SvgDocument
             }
         }
 
-        UpdateStrokeColor(colorType);
+        UpdateStrokeColors(colorType);
+        UpdateColorColors(colorType);
     }
 
-    private void UpdateFillColor(SvgColorType colorType)
+    private void UpdateColorColors(SvgColorType colorType)
     {
-        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill)
+        if (colorType == SvgColorType.SingleColor || colorType == SvgColorType.SingleShared)
+        {
+            var nodes = Document.DocumentNode.DescendantsAndSelf();
+            foreach (var node in nodes.Where(node => node.Attributes.Contains("color") && !node.Attributes["color"].Value.Equals("transparent", StringComparison.OrdinalIgnoreCase)))
+            {
+                node.Attributes["color"].Value = "currentColor";
+            }
+        }
+    }
+
+    private void UpdateFillColors(SvgColorType colorType)
+    {
+        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleShared)
         {
             var nodes = Document.DocumentNode.DescendantsAndSelf();
             foreach (var node in nodes.Where(node => node.Attributes.Contains("fill") && !node.Attributes["fill"].Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
@@ -147,9 +166,9 @@ internal class SvgDocument
         }
     }
 
-    private void UpdateStrokeColor(SvgColorType colorType)
+    private void UpdateStrokeColors(SvgColorType colorType)
     {
-        if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
+        if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleShared)
         {
             var nodes = Document.DocumentNode.DescendantsAndSelf();
             foreach (var node in nodes.Where(node => node.Attributes.Contains("stroke") && !node.Attributes["stroke"].Value.Equals("none", StringComparison.OrdinalIgnoreCase)))
