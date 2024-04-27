@@ -1,5 +1,4 @@
 ﻿using HtmlAgilityPack;
-using System.Linq;
 
 namespace Blazicons.Generating.Internals;
 
@@ -18,52 +17,11 @@ internal class SvgDocument
             ?? throw new InvalidOperationException("The provided SVG does not contain a root <svg> element.");
     }
 
-    public string Svg { get; }
-
     public HtmlDocument Document { get; }
 
+    public string Svg { get; }
+
     public HtmlNode SvgNode { get; }
-
-    public Dictionary<string, string> GetAttributes()
-    {
-        return SvgNode.Attributes.ToDictionary(x => x.Name, x => x.Value);
-    }
-
-    public void ConvertStylesToAttributes()
-    {
-        var nodes = SvgNode.DescendantsAndSelf().ToList();
-        foreach (var node in nodes.Where(node => node.Attributes.Contains("style")))
-        {
-            var styleValue = node.Attributes["style"].Value;
-            var parts = styleValue.Split([';'], StringSplitOptions.RemoveEmptyEntries);
-            var attributes = new List<HtmlAttribute>();
-            foreach (var part in parts)
-            {
-                var styleEntry = part.Split(':');
-                if (styleEntry.Length > 1)
-                {
-                    attributes.Add(Document.CreateAttribute(styleEntry[0].Trim(), styleEntry[1].Trim()));
-                }
-            }
-
-            node.Attributes.Remove("style");
-            foreach (var attribute in attributes)
-            {
-                node.Attributes.Add(attribute);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Determines if the SVG and its children contain multiple fill colors.
-    /// </summary>
-    /// <returns></returns>
-    /// <exception cref="InvalidOperationException"></exception>
-    public bool HasMultipleFillColors()
-    {
-        var type = CalculateSvgColorType();
-        return type == SvgColorType.Multiple;
-    }
 
     public SvgColorType CalculateSvgColorType()
     {
@@ -96,19 +54,45 @@ internal class SvgDocument
         return SvgColorType.None;
     }
 
-    public void RemoveColorAttributes()
+    public void ConvertStylesToAttributes()
     {
         var nodes = SvgNode.DescendantsAndSelf().ToList();
-
-        foreach (var node in nodes)
+        foreach (var node in nodes.Where(node => node.Attributes.Contains("style")))
         {
-            if (node.Attributes.Contains("fill") && !node.Attributes["fill"].Value.Equals("none", StringComparison.OrdinalIgnoreCase))
+            var styleValue = node.Attributes["style"].Value;
+            var parts = styleValue.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+            var attributes = new List<HtmlAttribute>();
+            foreach (var part in parts)
             {
-                node.Attributes.Remove("fill");
+                var styleEntry = part.Split(':');
+                if (styleEntry.Length > 1)
+                {
+                    attributes.Add(Document.CreateAttribute(styleEntry[0].Trim(), styleEntry[1].Trim()));
+                }
             }
 
-            node.Attributes.Remove("stroke");
+            node.Attributes.Remove("style");
+            foreach (var attribute in attributes)
+            {
+                node.Attributes.Add(attribute);
+            }
         }
+    }
+
+    public Dictionary<string, string> GetAttributes()
+    {
+        return SvgNode.Attributes.ToDictionary(x => x.Name, x => x.Value);
+    }
+
+    /// <summary>
+    /// Determines if the SVG and its children contain multiple fill colors.
+    /// </summary>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    public bool HasMultipleFillColors()
+    {
+        var type = CalculateSvgColorType();
+        return type == SvgColorType.Multiple;
     }
 
     public void RemoveComments()
@@ -125,26 +109,43 @@ internal class SvgDocument
         RemoveComments();
         ConvertStylesToAttributes();
         CalculateSvgColorType();
-        UpdateRootColor();
+        UpdateColors();
     }
 
-    public void UpdateRootColor()
+    public void UpdateColors()
     {
         var colorType = CalculateSvgColorType();
-        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
-        {
-            RemoveColorAttributes();
-        }
+        UpdateFillColor(colorType);
 
-        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill || colorType == SvgColorType.SingleStroke || colorType == SvgColorType.None)
+        if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.None)
         {
             SvgNode.Attributes.Add("fill", "currentColor");
         }
 
+        UpdateStrokeColor(colorType);
+    }
 
+    private void UpdateFillColor(SvgColorType colorType)
+    {
+        if (colorType == SvgColorType.SingleFill || colorType == SvgColorType.SingleStrokeAndFill)
+        {
+            var nodes = Document.DocumentNode.DescendantsAndSelf();
+            foreach (var node in nodes.Where(node => node.Attributes.Contains("fill")))
+            {
+                node.Attributes["fill"].Value = "currentColor";
+            }
+        }
+    }
+
+    private void UpdateStrokeColor(SvgColorType colorType)
+    {
         if (colorType == SvgColorType.SingleStroke || colorType == SvgColorType.SingleStrokeAndFill)
         {
-            SvgNode.Attributes.Add("stroke", "currentColor");
+            var nodes = Document.DocumentNode.DescendantsAndSelf();
+            foreach (var node in nodes.Where(node => node.Attributes.Contains("stroke")))
+            {
+                node.Attributes["stroke"].Value = "currentColor";
+            }
         }
     }
 }
