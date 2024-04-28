@@ -15,7 +15,8 @@ public static class GeneratorExecutionContextExtensions
         string svgFolder,
         string searchPattern = "*.svg",
         Func<string, string>? propertyNameFromFileName = null,
-        Func<string, bool>? isFileNameOk = null
+        Func<string, bool>? isFileNameOk = null,
+        bool skipColorScrub = false
         )
     {
         propertyNameFromFileName ??= GetMemberName;
@@ -46,7 +47,7 @@ public static class GeneratorExecutionContextExtensions
         {
             var svg = File.ReadAllText(Path.Combine(svgFolder, file));
             var svgDoc = new SvgDocument(svg);
-            svgDoc.Scrub();
+            svgDoc.Scrub(skipColorScrub);
             var attributes = svgDoc.GetAttributes();
             foreach (var exclude in ExcludedAttributes)
             {

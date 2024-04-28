@@ -110,12 +110,15 @@ internal class SvgDocument
         }
     }
 
-    public void Scrub()
+    public void Scrub(bool skipColorScrub = false)
     {
         RemoveComments();
         ConvertStylesToAttributes();
         CalculateSvgColorType();
-        UpdateColors();
+        if (!skipColorScrub)
+        {
+            UpdateColors();
+        }
     }
 
     public void UpdateColors()
