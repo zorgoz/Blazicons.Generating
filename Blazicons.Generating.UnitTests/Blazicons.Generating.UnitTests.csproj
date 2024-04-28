@@ -1,0 +1,81 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="MSTest.TestAdapter" Version="3.3.1" />
+    <PackageReference Include="MSTest.TestFramework" Version="3.3.1" />
+    <PackageReference Include="Verify.MSTest" Version="23.7.2" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Threading.Analyzers" Version="17.9.28">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SecurityCodeScan.VS2019" Version="5.6.7">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="SonarAnalyzer.CSharp" Version="9.24.0.89429">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Text.Analyzers" Version="3.3.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Blazicons.Generating\Blazicons.Generating.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="SvgDocumentTests\UpdateColorsShould.NotUpdateGivenDifferentFillAndStroke.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.NotUpdateGivenMultipleFillColors.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenFill.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenMultipleMatchingFillColors.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenMultipleMatchingStrokeColors.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenNoColor.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenRootFillColor.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenRootStrokeColor.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+    <None Update="SvgDocumentTests\UpdateColorsShould.UpdateGivenStroke.verified.txt">
+      <DependentUpon>UpdateColorsShould.cs</DependentUpon>
+    </None>
+  </ItemGroup>
+
+</Project>
