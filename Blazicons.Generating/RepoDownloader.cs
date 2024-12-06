@@ -9,7 +9,7 @@ namespace Blazicons.Generating;
 public class RepoDownloader
 {
     private static readonly HttpClient client = new();
-    private static readonly char[] separator = new[] { '/' };
+    private static readonly char[] separator = ['/'];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RepoDownloader"/> class.
