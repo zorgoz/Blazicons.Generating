@@ -23,12 +23,14 @@
     <BlaziconsSvgPattern Condition="'$(BlaziconsSvgPattern)' == ''">\.svg$</BlaziconsSvgPattern>
 
     <!-- The name of the generated icon class -->
+	<!-- It can be a separated list, if SvgFolderPath is also a separated list with matching elements -->
     <BlaziconsClassName Condition="'$(BlaziconsClassName)' == ''">Icon</BlaziconsClassName>
 
     <!-- The output directory for generated code (relative to project directory) -->
     <BlaziconsGeneratedCodeOutputPath Condition="'$(BlaziconsGeneratedCodeOutputPath)' == ''">Generated</BlaziconsGeneratedCodeOutputPath>
 
     <!-- The relative path within the repository to the folder containing SVG files -->
+	<!-- It can be a separated list, if ClassName is also a separated list with matching elements -->
     <BlaziconsSvgFolderPath Condition="'$(BlaziconsSvgFolderPath)' == ''"></BlaziconsSvgFolderPath>
 
     <!-- The generator namespace/path structure for organizing generated files -->

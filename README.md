@@ -54,8 +54,8 @@ Example with the above configuration:
 | `BlaziconsRepoUrl` | Yes* | URL to a .zip file containing the icon repository | `https://github.com/my-team/myicons/archive/refs/heads/main.zip` |
 | `BlaziconsRepoPath` | Yes* | Local path to a repository (alternative to RepoUrl) | `C:\Source\icons` |
 | `BlaziconsSvgPattern` | Yes | Regex pattern to filter SVG files | `^src\/svg\/.*.svg$` |
-| `BlaziconsClassName` | Yes | Name of the generated icon class | `MyIcon` |
-| `BlaziconsSvgFolderPath` | No | Relative path within the repo to the SVG folder | `src/svg` |
+| `BlaziconsClassName` | Yes | Name of the generated icon class (_see also advanced usage_) | `MyIcon` |
+| `BlaziconsSvgFolderPath` | No | Relative path within the repo to the SVG folder (_see also advanced usage_) | `src/svg` |
 | `BlaziconsPropertyNameRemovalPatterns` | No | Semicolon-delimited regex patterns to remove from file names: `^pattern` (prefix), `pattern$` (suffix), `pattern` (anywhere) | `^My_Icons_;_24_\w*$;-(original\|plain\|line)` |
 | `BlaziconsSkipColorScrub` | No | Skip color scrubbing for SVG content | `true` |
 | `BlaziconsGeneratedCodeOutputPath` | Yes | Output directory for generated code | `Generated` |
@@ -67,16 +67,18 @@ Example with the above configuration:
 ## Advanced Configuration
 
 ### Generating Multiple Icon Classes
-For cases where multiple icon sets are desired in one package (e.g., different aspect ratios or styles), the recommended approach is to create separate non-packable generator projects that output to your main project.
+For cases where multiple icon sets are desired in one package (e.g., different aspect ratios or styles), the recommended approach is to set a corresponding list of class names and paths in the `ClassName` and `SvgFolderPath` properties respectively. If you omit the `SvgFolderPath` property, you can't have multiple classes. Accepted separators are: `,;|`.
 
+If you need more control on what and how to add in the package, you can still use the approach to create separate non-packable generator projects that output to your main project:
+
+```
 my-icons/  
 ├─ MyIcons.csproj (main project, packable)  
 ├─ MyIcons.Filled/  
 │   ├─ MyIcons.Filled.csproj (generator project, non-packable)  
 ├─ MyIcons.Outlined/  
 │   ├─ MyIcons.Outlined.csproj (generator project, non-packable)  
-
-
+```
 
 ### Build-Time Generation Control
 Code generation is controlled by the `BlaziconsEnableCodeGeneration` property, which is automatically set based on configuration file presence. To manually control generation:

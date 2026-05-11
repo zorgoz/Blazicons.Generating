@@ -9,6 +9,8 @@ namespace Blazicons.Generating;
 /// </summary>
 public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
 {
+    private static readonly char[] separators = ",;|".ToCharArray();
+
     private readonly CancellationTokenSource cancellationTokenSource = new();
     private bool hasDisposed;
 
@@ -20,8 +22,11 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
 
     /// <summary>
     /// Gets or sets the name of the generated class.
-    /// Default: Icon
+    /// Default: Icon    
     /// </summary>
+    /// <remarks>
+    /// It can be a separated list, if SvgFolderPath is also a separated list with matching elements
+    /// </remarks>
     [Required]
     public string ClassName { get; set; } = "Icon";
 
@@ -75,6 +80,9 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
     /// <summary>
     /// Gets or sets the relative path within the extracted repository to the SVG folder.
     /// </summary>
+    /// <remarks>
+    /// It can be a separated list, if ClassName is also a separated list with matching elements.
+    /// </remarks>
     public string? SvgFolderPath { get; set; }
 
     /// <summary>
@@ -150,6 +158,8 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
     /// <returns>True if successful, false otherwise.</returns>
     private async Task<bool> ExecuteAsync(CancellationToken cancellationToken)
     {
+        Log.LogMessage(MessageImportance.High, "Starting Blazicons generation task...");
+
         try
         {
             // Validate inputs
@@ -165,7 +175,16 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
                 return false;
             }
 
-            Log.LogMessage(MessageImportance.High, $"Generating {ClassName} icons to: {OutputPath}");
+            var classes = ClassName.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+            var svgPaths = SvgFolderPath?.Split(separators, StringSplitOptions.RemoveEmptyEntries) ?? [string.Empty];
+
+            if (classes.Length != svgPaths.Length)
+            {
+                Log.LogError("The number of classes must match the number of SVG folder paths.");
+                return false;
+            }
+
+            Log.LogMessage(MessageImportance.High, $"Generating from {RepoUrl ?? RepoPath} icons to: {OutputPath}");
 
             // Handle repository download if URL is provided
             bool success;
@@ -205,20 +224,26 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
 
         Log.LogMessage(MessageImportance.Normal, $"Using local repository at: {repoPath}");
 
-        var svgFolder = !string.IsNullOrWhiteSpace(SvgFolderPath)
-            ? Path.Combine(repoPath, SvgFolderPath)
-            : repoPath;
+        var svgPaths = SvgFolderPath?.Split(separators, StringSplitOptions.RemoveEmptyEntries) ?? [string.Empty];
+        var classes = ClassName.Split(separators, StringSplitOptions.RemoveEmptyEntries);
 
-        if (!Directory.Exists(svgFolder))
+        var index = 0;
+        foreach (var root in svgPaths)
         {
-            Log.LogError($"SVG folder not found: {svgFolder}");
-            return false;
+            var svgFolder = Path.Combine(repoPath, root);
+
+            if (!Directory.Exists(svgFolder))
+            {
+                Log.LogError($"SVG folder not found: {svgFolder}");
+                return false;
+            }
+
+            var svgFiles = Directory.GetFiles(svgFolder, "*.svg", SearchOption.AllDirectories);
+            Log.LogMessage(MessageImportance.Normal, $"Found {svgFiles.Length} SVG files.");
+
+            GenerateIconsClass(svgFolder, classes[index++]);
         }
-
-        var svgFiles = Directory.GetFiles(svgFolder, "*.svg", SearchOption.AllDirectories);
-        Log.LogMessage(MessageImportance.Normal, $"Found {svgFiles.Length} SVG files.");
-
-        GenerateIconsClass(svgFolder);
+        
         return true;
     }
 
@@ -237,29 +262,28 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
             Log.LogMessage(MessageImportance.Normal, $"Downloaded {files.Count} SVG files.");
 
             // Build the path to the SVG folder
-            string svgFolder;
-            if (!string.IsNullOrWhiteSpace(SvgFolderPath))
+
+            var svgPaths = SvgFolderPath?.Split(separators, StringSplitOptions.RemoveEmptyEntries) ?? [string.Empty];
+            var classes = ClassName.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+
+            var index = 0;
+            foreach (var root in svgPaths)
             {
-                svgFolder = Path.Combine(
+                var svgFolder = Path.Combine(
                     downloader.ExtractedFolder,
                     $"{downloader.RepoName}-{downloader.BranchName}",
-                    SvgFolderPath);
-            }
-            else
-            {
-                svgFolder = Path.Combine(
-                    downloader.ExtractedFolder,
-                    $"{downloader.RepoName}-{downloader.BranchName}");
-            }
+                    root);
 
-            if (!Directory.Exists(svgFolder))
-            {
-                Log.LogError($"SVG folder not found: {svgFolder}");
-                return false;
-            }
+                if (!Directory.Exists(svgFolder))
+                {
+                    Log.LogError($"SVG folder not found: {svgFolder}");
+                    return false;
+                }
 
-            // Generate the icons class file BEFORE cleanup
-            GenerateIconsClass(svgFolder);
+                // Generate the icons class file BEFORE cleanup
+                GenerateIconsClass(svgFolder, classes[index++]);
+            }
+            
             return true;
         }
         catch (Exception ex)
@@ -288,7 +312,7 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
         }
     }
 
-    private void GenerateIconsClass(string svgFolder)
+    private void GenerateIconsClass(string svgFolder, string className)
     {
         // Use custom generator path if specified, otherwise use default
         string generatorPath;
@@ -297,7 +321,7 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
             // Replace forward slashes with correct path separator
             var pathParts = GeneratorPath!.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
-            generatorPath = Path.Combine(new[] { OutputPath! }.Concat(pathParts).ToArray());
+            generatorPath = Path.Combine([OutputPath!, .. pathParts]);
         }
         else
         {
@@ -307,7 +331,7 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
                 "Blazicons.Generating");
         }
 
-        var outputFilePath = Path.Combine(generatorPath, $"{ClassName}.g.cs");
+        var outputFilePath = Path.Combine(generatorPath, $"{className}.g.cs");
 
         Log.LogMessage(MessageImportance.Normal, $"Generating class file: {outputFilePath}");
 
@@ -322,7 +346,7 @@ public class GenerateBlaziconsTask : MSBuildTask, ICancelableTask, IDisposable
         // Generate the code
         BlaziconsClassGenerator.GenerateClassFile(
             outputFilePath,
-            ClassName,
+            className,
             svgFolder,
             propertyNameRemovalPatterns: patternsToUse,
             skipColorScrub: SkipColorScrub);

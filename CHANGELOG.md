@@ -1,6 +1,9 @@
 # Changelog
 These are the list of changes to each version that has been released.
 
+## 3.4
+- [x] Added support for multiple classes from corresponding number of subfolders
+
 ## 3.3
 - [x] Fixed issue with color replacement in nested SVG elements
 
